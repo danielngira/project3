@@ -122,6 +122,7 @@ def handle_command(command):
             speak_text("Sending hi to opponent.")
             local_player_ready = True  # Set local readiness
             send_message_with_log("/hi", player_ip)
+            send_message_with_log("/setgame", 1)
 
         elif "stop" in command:
             global quit
