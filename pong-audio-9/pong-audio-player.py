@@ -123,13 +123,6 @@ def handle_command(command):
             local_player_ready = True  # Set local readiness
             send_message_with_log("/hi", player_ip)
 
-            # Check if both players are ready
-            if local_player_ready and remote_player_ready:
-                print("> Both players are ready. Starting the game!")
-                speak_text("Both players are ready. Starting the game!")
-                send_message_with_log("/setgame", 1)
-                set_game_state(True)
-
         elif "stop" in command:
             global quit
             set_game_state(False)
@@ -351,16 +344,14 @@ def on_receive_p2_bigpaddle(address, *args):
 
 def on_receive_hi(address, *args):
     global local_player_ready, remote_player_ready
-    print(f"Received /hi message. Address: {address}, Args: {args}")
+    print(f"Received hi message. Address: {address}, Args: {args}")
     speak_text("Your opponent said hi")
     remote_player_ready = True  # Set remote readiness
     
-    # Check if both players are ready
-    if local_player_ready and remote_player_ready:
-        send_message_with_log("/setgame", 1)
-        set_game_state(True)
-        print('Players are ready, starting game.')
-        speak_text('Players are ready, starting game.')
+    send_message_with_log("/setgame", 1)
+    set_game_state(True)
+    print('Players are ready, starting game.')
+    speak_text('Players are ready, starting game.')
 
 def on_receive_setpaddle(address, *args):
     print(f"Received /setpaddle: {args}")  # Log received paddle updates
@@ -519,6 +510,10 @@ except KeyboardInterrupt:
 finally:
     # Stop TTS manager and other threads gracefully when quitting
     quit_event.set()  # Signal threads to stop
+
+    player_server_thread.join(timeout=5)
+    if player_server_thread.is_alive():
+        print("Warning: player_server_thread did not shut down properly.")
     print("Clean shutdown completed.")
     
     # this is how client send messages to server
