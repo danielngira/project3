@@ -94,6 +94,10 @@ def sound_worker():
 sound_thread = threading.Thread(target=sound_worker, daemon=True)
 sound_thread.start()
 
+if (mode == 'p1') or (mode == 'p2'):
+    client = udp_client.SimpleUDPClient(host_ip, host_port)
+    print("> connected to server at "+host_ip+":"+str(host_port))
+
 def send_message_with_log(path, value):
     """Send OSC messages with logging for debugging."""
     try:
@@ -463,10 +467,6 @@ if mode == 'p1':
     host_port = host_port_1
 if mode == 'p2':
     host_port = host_port_2
-
-if (mode == 'p1') or (mode == 'p2'):
-    client = udp_client.SimpleUDPClient(host_ip, host_port)
-    print("> connected to server at "+host_ip+":"+str(host_port))
 
 # OSC thread
 # -------------------------------------#
