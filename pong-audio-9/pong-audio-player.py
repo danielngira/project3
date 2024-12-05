@@ -44,8 +44,8 @@ import json
 
 # Global variables
 mode = ''
-player1_ready = False
-player2_ready = False
+local_player_ready = False
+remote_player_ready = False
 debug = False
 quit = False
 is_game_running = False
@@ -95,7 +95,7 @@ sound_thread = threading.Thread(target=sound_worker, daemon=True)
 sound_thread.start()
 
 def handle_command(command):
-    global paddle_position, player1_ready, player2_ready, mode, difficulty
+    global paddle_position, local_player_ready, remote_player_ready, mode, difficulty
     print(f"Command received: {command}")
 
     if command == "":
@@ -118,25 +118,18 @@ def handle_command(command):
             print("the game has paused")
             set_game_state(False)
         elif "hi" in command:
-            if mode == "p1":
-                player1_ready = True
-                print("> Player 1 is ready!")
-                speak_text("player 1 is ready")
-            elif mode == "p2":
-                player2_ready = True
-                print("> Player 2 is ready!")
-                speak_text("player 2 is ready")
-            else:
-                print("> Unknown player mode or configuration error.")
-
+            print("> 'hi' command received via speech.")
+            speak_text("Sending hi to opponent.")
+            local_player_ready = True  # Set local readiness
             send_message_with_log("/hi", player_ip)
 
             # Check if both players are ready
-            if player1_ready and player2_ready: #change
+            if local_player_ready and remote_player_ready:
                 print("> Both players are ready. Starting the game!")
                 speak_text("Both players are ready. Starting the game!")
                 send_message_with_log("/setgame", 1)
                 set_game_state(True)
+
         elif "stop" in command:
             global quit
             set_game_state(False)
@@ -288,6 +281,9 @@ def on_receive_game(address, *args):
         set_game_state(args[0] == 1)
         game_state = "started" if args[0] == 1 else "paused"
         print(f"Game state: {game_state}")
+        print(f"Game state: {game_state}")
+        if args[0] == 1:
+            speak_text("Game started")
 
 def on_receive_ball(address, *args):
     if len(args) == 2:
@@ -354,14 +350,17 @@ def on_receive_p2_bigpaddle(address, *args):
     # when p2 activates their big paddle
 
 def on_receive_hi(address, *args):
-    global player1_ready, player2_ready
+    global local_player_ready, remote_player_ready
     print(f"Received /hi message. Address: {address}, Args: {args}")
     speak_text("Your opponent said hi")
-    player2_ready = True
+    remote_player_ready = True  # Set remote readiness
     
-    send_message_with_log("/setgame", 1)
-    print('Players are ready, starting game.')
-    speak_text('Players are ready, starting game.')
+    # Check if both players are ready
+    if local_player_ready and remote_player_ready:
+        send_message_with_log("/setgame", 1)
+        set_game_state(True)
+        print('Players are ready, starting game.')
+        speak_text('Players are ready, starting game.')
 
 def on_receive_setpaddle(address, *args):
     print(f"Received /setpaddle: {args}")  # Log received paddle updates
