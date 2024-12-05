@@ -111,17 +111,21 @@ def handle_command(command):
             send_message_with_log("/setgame", 1)
             set_game_state(True)
             print("Game started explicitly by user after both players said hi.")
-    
+            speak_text("Game started")
         elif "pause" in command:
             send_message_with_log("/setgame", 0)
+            speak_text("The game is paused")
+            print("the game has paused")
             set_game_state(False)
         elif "hi" in command:
             if mode == "p1":
                 player1_ready = True
                 print("> Player 1 is ready!")
+                speak_text("player 1 is ready")
             elif mode == "p2":
                 player2_ready = True
                 print("> Player 2 is ready!")
+                speak_text("player 2 is ready")
             else:
                 print("> Unknown player mode or configuration error.")
 
@@ -284,7 +288,6 @@ def on_receive_game(address, *args):
         set_game_state(args[0] == 1)
         game_state = "started" if args[0] == 1 else "paused"
         print(f"Game state: {game_state}")
-        speak_text(f"The game is {game_state}.")
 
 def on_receive_ball(address, *args):
     if len(args) == 2:
