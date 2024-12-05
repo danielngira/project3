@@ -1,0 +1,6 @@
+python-osc
+aubio @ git+https://git.aubio.org/aubio/aubio/@152d6819b360c2e7b379ee3f373d444ab3df0895
+numpy
+playsound==1.2.2
+PyAudio
+SpeechRecognition
