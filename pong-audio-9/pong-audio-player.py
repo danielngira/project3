@@ -354,9 +354,15 @@ def on_receive_p2_bigpaddle(address, *args):
     # when p2 activates their big paddle
 
 def on_receive_hi(address, *args):
+    global player1_ready, player2_ready
     # Print the received address and arguments for debugging
     print(f"Received /hi message. Address: {address}, Args: {args}")
     speak_text("Your opponent said hi")
+    player2_ready = True
+    if player1_ready:
+        client.send_message('/setgame', 1)
+        print('Players are ready, starting game.')
+        speak_text('Players are ready, starting game.')
 
 def on_receive_setpaddle(address, *args):
     print(f"Received /setpaddle: {args}")  # Log received paddle updates
