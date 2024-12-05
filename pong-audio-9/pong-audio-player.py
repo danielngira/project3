@@ -63,6 +63,7 @@ host_port = 0
 game_state_lock = threading.Lock()
 quit_event = threading.Event()
 last_speech_time = 0
+difficulty = ""
 intro_phrases = [
     "welcome these are commands you will use to play the game",
     "say start to start playing",
@@ -94,7 +95,7 @@ sound_thread = threading.Thread(target=sound_worker, daemon=True)
 sound_thread.start()
 
 def handle_command(command):
-    global paddle_position, player1_ready, player2_ready, mode
+    global paddle_position, player1_ready, player2_ready, mode, difficulty
     print(f"Command received: {command}")
 
     if command == "":
@@ -127,7 +128,7 @@ def handle_command(command):
             send_message_with_log("/hi", player_ip)
 
             # Check if both players are ready
-            if player1_ready or player2_ready: #change
+            if player1_ready and player2_ready: #change
                 print("> Both players are ready. Starting the game!")
                 speak_text("Both players are ready. Starting the game!")
                 send_message_with_log("/setgame", 1)
@@ -148,14 +149,19 @@ def handle_command(command):
 
         # Difficulty settings
         elif "easy" in command:
+            difficulty = "easy"
             send_message_with_log("/setlevel", 1)
             speak_text("Difficulty set to Easy.")
         elif "hard" in command:
+            difficulty = "hard"
             send_message_with_log("/setlevel", 2)
             speak_text("Difficulty set to Hard.")
         elif "insane" in command:
+            difficulty = "insane"
             send_message_with_log("/setlevel", 3)
             speak_text("Difficulty set to Insane.")
+        elif "difficulty" in command:
+            speak_text(f"Difficulty set to {difficulty}.")
 
         # Activate powerup
         elif "powerup" in command or "big paddle" in command:
@@ -242,7 +248,7 @@ def speak_text(text):
     except Exception as e:
         print(f"TTS Error: {e}")
 
-subprocess.run(['say', 'Welcome. These are commands you will use to play the game. Say start to start playing, pause to pause the game, up to move the paddle up and down to move the paddle down. When on the menu screen, set the difficulty by saying either, easy, hard or insane and then say start to start playing. Whenever you are ready, say hi'])
+subprocess.run(['say', 'Welcome. These are commands you will use to play the game. Say start to start playing, pause to pause the game, up to move the paddle up and down to move the paddle down. When on the menu screen, set the difficulty by saying either, easy, hard or insane. To check your difficulty, say difficulty in the pause menu, then say start to start playing. Whenever you are ready, say hi'])
 
 if __name__ == '__main__' :
 
@@ -347,6 +353,7 @@ def on_receive_p2_bigpaddle(address, *args):
 def on_receive_hi(address, *args):
     # Print the received address and arguments for debugging
     print(f"Received /hi message. Address: {address}, Args: {args}")
+    speak_text("Your opponent said hi")
 
 def on_receive_setpaddle(address, *args):
     print(f"Received /setpaddle: {args}")  # Log received paddle updates
