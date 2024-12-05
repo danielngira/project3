@@ -94,6 +94,14 @@ def sound_worker():
 sound_thread = threading.Thread(target=sound_worker, daemon=True)
 sound_thread.start()
 
+def send_message_with_log(path, value):
+    """Send OSC messages with logging for debugging."""
+    try:
+        print(f"Sending OSC message: {path} {value}")
+        client.send_message(path, value)
+    except Exception as e:
+        print(f"Error sending OSC message: {e}")
+
 def handle_command(command):
     global paddle_position, local_player_ready, remote_player_ready, mode, difficulty
     print(f"Command received: {command}")
@@ -380,15 +388,6 @@ dispatcher_player.map("/p2bigpaddle", on_receive_p2_bigpaddle)
 # example 1: speech recognition functions using google api
 # -------------------------------------#
 
-def send_message_with_log(path, value):
-    """Send OSC messages with logging for debugging."""
-    try:
-        print(f"Sending OSC message: {path} {value}")
-        client.send_message(path, value)
-    except Exception as e:
-        print(f"Error sending OSC message: {e}")
-
-    
 # -------------------------------------#
 
 # example 2: pitch & volume detection
